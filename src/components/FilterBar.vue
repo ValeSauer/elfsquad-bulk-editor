@@ -19,6 +19,9 @@ function openBulkDialog() {
 }
 function onBulkDone(updatedTagsById) {
   showBulk.value = false
+  if (updatedTagsById && typeof updatedTagsById === 'object') {
+    selection.setBulkTags(updatedTagsById)
+  }
   selection.clear()
 }
 </script>

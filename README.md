@@ -1,4 +1,6 @@
+# Elfsquad Bulk Feature Tag Editor
 
+![Screenshot of Elfsquad Bulk Feature Tag Editor](screenshot.png)
 
 # Elfsquad Bulk Feature Tag Editor
 

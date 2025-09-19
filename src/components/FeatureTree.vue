@@ -1,4 +1,5 @@
 <template>
+  <FilterBar :selected="selection.selected" />
   <n-spin :show="loading">
     <n-tree
       :data="treeData"
@@ -6,17 +7,33 @@
       :expand-on-click="false"
       :show-line="true"
       :render-label="renderLabel"
-  :on-load="onLoadWithLog"
+      :on-load="onLoadWithLog"
+      :selectable="true"
+      :multiple="true"
+      v-model:selected-keys="selectedKeys"
     />
   </n-spin>
 </template>
 
 <script setup>
-import { ref, watch, h } from 'vue'
+import { ref, watch, h, watchEffect } from 'vue'
 import { apiFetch, isAuthenticated } from '../api/elfsquad'
 import FeatureRow from './FeatureRow.vue'
+import { useSelectionStore } from '../stores/selection'
+import FilterBar from './FilterBar.vue'
 const loading = ref(false)
 const treeData = ref([])
+const selectedKeys = ref([])
+const selection = useSelectionStore()
+// Sync n-tree selection to selection store (featureIds only)
+watchEffect(() => {
+  // selectedKeys are like 'modelId:featureId', extract featureId
+  const featureIds = selectedKeys.value.map(k => {
+    if (typeof k === 'string' && k.includes(':')) return k.split(':')[1]
+    return k
+  })
+  selection.selected = featureIds
+})
 
 // Lazy Loading Handler für tiefe Ebenen
 async function onLoadWithLog(node) {

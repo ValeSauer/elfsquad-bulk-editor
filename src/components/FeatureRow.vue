@@ -4,7 +4,16 @@
     <span class="feature-name">{{ feature.name }}</span>
     <span class="feature-article">{{ feature.articleCode }}</span>
     <span class="feature-ref">{{ feature.reference }}</span>
-    <span class="feature-price">{{ feature.salesPrice }}</span>
+    <span>
+      <n-input
+        v-model:value="editPriceDisplay"
+        size="small"
+        style="width: 100px;"
+        :placeholder="'Price'"
+        @blur="onPriceBlur"
+        @input="onPriceInput"
+      />
+    </span>
     <n-select
       v-model:value="inputTags"
       :options="tagOptions"
@@ -34,8 +43,8 @@
 
 <script setup>
 
-import { ref, watch, computed, onMounted } from 'vue'
-import { NCheckbox } from 'naive-ui'
+import { ref, computed, watch, onMounted } from 'vue'
+import { NCheckbox, NInput } from 'naive-ui'
 import { apiFetch } from '../api/elfsquad'
 import { useTagSetStore } from '../stores/tagSet'
 import { useSelectionStore } from '../stores/selection'
@@ -47,6 +56,45 @@ const props = defineProps({
 })
 
 const feature = ref({})
+const editPrice = ref()
+const editPriceDisplay = ref('')
+
+function parseCurrency(str) {
+  if (!str) return 0
+  // Remove all non-numeric except comma, dot, and minus
+  const cleaned = str.replace(/[^\d,.-]/g, '').replace(',', '.')
+  const num = parseFloat(cleaned)
+  return isNaN(num) ? 0 : num
+}
+
+function formatCurrency(val) {
+  if (typeof val !== 'number' || isNaN(val)) return ''
+  return val === 0 ? '' : val.toLocaleString('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })
+}
+
+function onPriceInput(val) {
+  // Allow user to type freely, but keep in sync with editPrice
+  editPriceDisplay.value = val
+}
+
+async function onPriceBlur() {
+  const value = parseCurrency(editPriceDisplay.value)
+  editPrice.value = value
+  // Format for display
+  editPriceDisplay.value = formatCurrency(value)
+  if (value !== feature.value.salesPrice) {
+    try {
+      await apiFetch(`/Features/${feature.value.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salesPrice: value })
+      })
+      feature.value.salesPrice = value
+    } catch (e) {
+      window.$message?.error('Failed to save price')
+    }
+  }
+}
 const inputTags = ref([])
 const tagSetStore = useTagSetStore()
 const selection = useSelectionStore()
@@ -61,15 +109,19 @@ function toggleSelection() {
   selection.toggle(props.featureId)
 }
 
-// Watch for bulk tag updates for this feature
+// Watch for bulk tag updates for this feature, always update tags if present
 watch(
   () => selection.bulkTags[props.featureId],
   (newTags) => {
     if (Array.isArray(newTags)) {
       inputTags.value = [...newTags]
       feature.value.tags = [...newTags]
+    } else if (newTags === undefined) {
+      // If bulkTags is cleared, but tags were just set, keep them in the UI
+      // Do nothing, keep current tags
     }
-  }
+  },
+  { immediate: true }
 )
 // Options: all globally known tags
 const tagOptions = computed(() => {
@@ -83,6 +135,9 @@ async function loadFeature() {
   inputTags.value = [...(data.tags || [])]
   // Add tags to the global set
   tagSetStore.addTags(data.tags || [])
+  // Set price input: empty if 0, else value
+  editPrice.value = (!data.salesPrice || data.salesPrice === 0) ? 0 : data.salesPrice
+  editPriceDisplay.value = (!data.salesPrice || data.salesPrice === 0) ? '' : formatCurrency(data.salesPrice)
 }
 
 onMounted(() => {

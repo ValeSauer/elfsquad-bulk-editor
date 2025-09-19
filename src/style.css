@@ -1,3 +1,5 @@
+/* Remove n-tree selected row highlight */
+
 /* Hide the vertical line in the tree node indent, keep only the indent spacing */
 .n-tree-node-indent--show-line::before {
   display: none !important;
