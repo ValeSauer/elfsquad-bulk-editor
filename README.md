@@ -2,7 +2,7 @@
 
 # Elfsquad Bulk Feature Tag Editor
 
-A vibe coded tool for convenient bulk management of feature tags in Elfsquad configurators.
+A vibe coded tool for convenient bulk management of feature tags and feature properties in Elfsquad configurators.
 
 ## Tech Stack
 - [Vue 3](https://vuejs.org/) (Composition API)
