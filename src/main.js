@@ -1,14 +1,16 @@
+
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
-
-// Pinia
 import { createPinia } from 'pinia'
-
-// Naive UI
 import { createNaiveUi } from './plugins/naiveUi'
+import { useFeaturePropertiesStore } from './stores/featureProperties'
 
 const app = createApp(App)
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(createNaiveUi())
+
+// No JSON loading here. All feature property data will be loaded via API in components or stores.
+
 app.mount('#app')

@@ -1,5 +1,5 @@
 <template>
-  <n-modal v-model:show="show" title="API Zugangsdaten" preset="dialog" :closable="false">
+  <n-modal v-model:show="show" title="API Credentials" preset="dialog" :closable="false">
     <n-form @submit.prevent="onSubmit">
       <n-form-item label="Client ID">
         <n-input v-model:value="clientId" required />
@@ -38,7 +38,7 @@ async function onSubmit() {
     await authenticate({ clientId: clientId.value, clientSecret: clientSecret.value, tenant: tenant.value })
     show.value = false
   } catch (e) {
-    error.value = e.message || 'Fehler beim Login'
+  error.value = e.message || 'Login failed'
   } finally {
     loading.value = false
   }

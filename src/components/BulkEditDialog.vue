@@ -1,14 +1,14 @@
 <template>
   <n-modal :show="localShow" @update:show="onUpdateShow" title="Bulk Tag Edit" preset="dialog">
     <n-form @submit.prevent="onSubmit">
-      <n-form-item label="Aktion">
+      <n-form-item label="Action">
         <n-select v-model:value="action" :options="actionOptions" required />
       </n-form-item>
       <n-form-item label="Tags">
         <n-auto-complete v-model:value="tags" :options="tagOptions" multiple filterable placeholder="Tags" />
       </n-form-item>
       <n-form-item>
-        <n-button type="primary" attr-type="submit" :loading="loading">Anwenden</n-button>
+        <n-button type="primary" attr-type="submit" :loading="loading">Apply</n-button>
       </n-form-item>
       <n-form-item v-if="errors.length">
         <n-alert type="error">
@@ -50,9 +50,9 @@ const errors = ref([])
 const tagOptions = ref([]) // TODO: global Tag-Vorschläge
 
 const actionOptions = [
-  { label: 'Hinzufügen', value: 'add' },
-  { label: 'Entfernen', value: 'remove' },
-  { label: 'Ersetzen', value: 'replace' }
+  { label: 'Add', value: 'add' },
+  { label: 'Remove', value: 'remove' },
+  { label: 'Replace', value: 'replace' }
 ]
 
 watch(localShow, val => {

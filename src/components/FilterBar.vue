@@ -1,8 +1,8 @@
 <template>
   <n-space vertical>
-    <n-input v-model:value="search" placeholder="Suche Name, Reference, Tag..." clearable style="max-width: 300px" />
-    <n-select v-model:value="tagFilter" :options="tagOptions" placeholder="Nach Tag filtern" clearable style="max-width: 200px" />
-    <n-button @click="openBulkDialog" :disabled="!selected.length">Bulk Edit</n-button>
+  <n-input v-model:value="search" placeholder="Search name, reference, tag..." clearable style="max-width: 300px" />
+  <n-select v-model:value="tagFilter" :options="tagOptions" placeholder="Filter by tag" clearable style="max-width: 200px" />
+  <n-button @click="openBulkDialog" :disabled="!selected.length">Bulk Edit</n-button>
   </n-space>
   <BulkEditDialog v-model:show="showBulk" :selected-ids="selected" @done="onBulkDone" />
 </template>

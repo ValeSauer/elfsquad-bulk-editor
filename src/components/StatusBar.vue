@@ -1,19 +1,35 @@
 <template>
   <n-space align="center" justify="space-between" style="width: 100%;">
-    <n-text>Status: <span :style="{color: isAuthenticated ? 'green' : 'red'}">{{ isAuthenticated ? 'Verbunden' : 'Nicht verbunden' }}</span></n-text>
-    <n-text v-if="tokenExpires">Token läuft ab: {{ expiresIn }}</n-text>
-    <n-button size="small" @click="logout" v-if="isAuthenticated">Logout</n-button>
+    <n-text>
+      <span :style="{color: isAuthenticated ? 'green' : 'red'}">
+        {{ isAuthenticated ? 'Connected' : 'Not connected' }}
+      </span>
+      <template v-if="isAuthenticated && tokenExpires">
+        &nbsp;| Token expires in: {{ expiresIn }}
+        <n-button size="small" @click="logout" style="margin-left: 1rem;">Logout</n-button>
+      </template>
+    </n-text>
   </n-space>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { isAuthenticated, tokenExpires, token } from '../api/elfsquad'
+
+const now = ref(Date.now())
+let timer = null
+onMounted(() => {
+  timer = setInterval(() => { now.value = Date.now() }, 1000)
+})
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
+})
 
 const expiresIn = computed(() => {
   if (!tokenExpires.value) return ''
-  const ms = tokenExpires.value - Date.now()
-  if (ms < 0) return 'abgelaufen'
+  const ms = tokenExpires.value - now.value
+  if (ms < 0) return 'expired'
   const min = Math.floor(ms / 60000)
   const sec = Math.floor((ms % 60000) / 1000)
   return `${min}m ${sec}s`

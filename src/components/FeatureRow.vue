@@ -12,18 +12,33 @@
       tag
       filterable
       @update:value="onTagsChange"
-      placeholder="Tags bearbeiten"
+  placeholder="Edit tags"
       style="min-width: 200px;"
     />
+    <span class="feature-properties" @click="showPropertyDialog = true" style="cursor:pointer;">
+      <template v-if="Object.keys(propertyValues).length">
+        <template v-for="prop in allProperties" :key="prop.id">
+          <span v-if="propertyValues[prop.id] && (propertyValues[prop.id].value !== undefined && propertyValues[prop.id].value !== null && propertyValues[prop.id].value !== '')">
+            {{ prop.name }}: {{ propertyValues[prop.id].value ?? propertyValues[prop.id].textValue ?? '' }}
+          </span>
+        </template>
+      </template>
+      <template v-else>
+  <span class="no-feature-property">No feature property assigned yet</span>
+      </template>
+    </span>
+    <FeaturePropertyDialog v-model:show="showPropertyDialog" :feature-id="props.featureId" @saved="onPropertySaved" />
   </div>
 </template>
 
 <script setup>
 
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { apiFetch } from '../api/elfsquad'
 import { useTagSetStore } from '../stores/tagSet'
 import { useSelectionStore } from '../stores/selection'
+import { useFeaturePropertiesStore } from '../stores/featureProperties'
+import FeaturePropertyDialog from './FeaturePropertyDialog.vue'
 
 const props = defineProps({
   featureId: String
@@ -33,7 +48,13 @@ const feature = ref({})
 const inputTags = ref([])
 const tagSetStore = useTagSetStore()
 const selection = useSelectionStore()
+const featurePropertiesStore = useFeaturePropertiesStore()
+const showPropertyDialog = ref(false)
+
 const isSelected = computed(() => selection.selected.includes(props.featureId))
+const allProperties = computed(() => featurePropertiesStore.properties)
+const propertyValues = computed(() => featurePropertiesStore.values[props.featureId] || {})
+
 function toggleSelection() {
   selection.toggle(props.featureId)
 }
@@ -62,7 +83,18 @@ async function loadFeature() {
   tagSetStore.addTags(data.tags || [])
 }
 
-watch(() => props.featureId, loadFeature, { immediate: true })
+onMounted(() => {
+  featurePropertiesStore.loadProperties()
+  featurePropertiesStore.loadValuesForFeature(props.featureId)
+  loadFeature()
+})
+
+watch(() => props.featureId, (id) => {
+  if (id) {
+    featurePropertiesStore.loadValuesForFeature(id)
+    loadFeature()
+  }
+}, { immediate: true })
 
 function validateTags(tags) {
   // Max 5, only letters/numbers, no duplicates, no empty
@@ -92,6 +124,11 @@ async function onTagsChange(val) {
   }
 }
 
+function onPropertySaved() {
+  showPropertyDialog.value = false
+  featurePropertiesStore.loadValuesForFeature(props.featureId)
+}
+
 </script>
 
 <style scoped>
@@ -104,5 +141,21 @@ async function onTagsChange(val) {
 .feature-id, .feature-article, .feature-ref, .feature-name, .feature-price {
   min-width: 80px;
   font-size: 0.95em;
+}
+.feature-properties {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.feature-property-label {
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+.feature-property-value {
+  min-width: 40px;
+}
+.no-feature-property {
+  color: #999;
+  font-style: italic;
 }
 </style>
