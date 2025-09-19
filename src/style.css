@@ -1,3 +1,40 @@
+/* Hide the vertical line in the tree node indent, keep only the indent spacing */
+.n-tree-node-indent--show-line::before {
+  display: none !important;
+}
+/* Make tree node indent fill the full height of the row */
+.n-tree-node-indent {
+  display: flex;
+  align-items: stretch;
+}
+
+/* Make the vertical indent line always match the content height */
+.n-tree-node-indent--show-line {
+  position: relative;
+  width: 18px;
+  min-width: 18px;
+  height: 100%;
+}
+.n-tree-node-indent--show-line::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #353545;
+  transform: translateX(-50%);
+  height: 100%;
+  z-index: 0;
+}
+/* Vertically center the n-tree-node-switcher in the tree node line */
+.n-tree-node {
+  display: flex;
+  align-items: center !important;
+  height: 100%;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -31,7 +68,7 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 18px;
   line-height: 1.1;
 }
 
@@ -58,22 +95,6 @@ button:focus-visible {
   padding: 2em;
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+
+

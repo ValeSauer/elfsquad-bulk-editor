@@ -1,6 +1,6 @@
 <template>
   <div class="feature-row">
-    <input type="checkbox" :checked="isSelected" @change="toggleSelection" style="margin-right: 0.5rem;" />
+    <n-checkbox :checked="isSelected" @update:checked="toggleSelection" style="margin-right: 0.5rem; vertical-align: middle;" />
     <span class="feature-name">{{ feature.name }}</span>
     <span class="feature-article">{{ feature.articleCode }}</span>
     <span class="feature-ref">{{ feature.reference }}</span>
@@ -12,19 +12,20 @@
       tag
       filterable
       @update:value="onTagsChange"
-  placeholder="Edit tags"
-      style="min-width: 200px;"
+      placeholder="Edit tags"
+      style="width: 220px; min-width: 220px; max-width: 220px;"
     />
     <span class="feature-properties" @click="showPropertyDialog = true" style="cursor:pointer;">
       <template v-if="Object.keys(propertyValues).length">
         <template v-for="prop in allProperties" :key="prop.id">
-          <span v-if="propertyValues[prop.id] && (propertyValues[prop.id].value !== undefined && propertyValues[prop.id].value !== null && propertyValues[prop.id].value !== '')">
-            {{ prop.name }}: {{ propertyValues[prop.id].value ?? propertyValues[prop.id].textValue ?? '' }}
+          <span v-if="propertyValues[prop.id] && (propertyValues[prop.id].value !== undefined && propertyValues[prop.id].value !== null && propertyValues[prop.id].value !== '')" class="feature-property-card">
+            <span class="feature-property-name">{{ prop.name }}</span>
+            <span class="feature-property-value">{{ propertyValues[prop.id].value ?? propertyValues[prop.id].textValue ?? '' }}</span>
           </span>
         </template>
       </template>
       <template v-else>
-  <span class="no-feature-property">No feature property assigned yet</span>
+        <span class="no-feature-property">No feature properties</span>
       </template>
     </span>
     <FeaturePropertyDialog v-model:show="showPropertyDialog" :feature-id="props.featureId" @saved="onPropertySaved" />
@@ -34,6 +35,7 @@
 <script setup>
 
 import { ref, watch, computed, onMounted } from 'vue'
+import { NCheckbox } from 'naive-ui'
 import { apiFetch } from '../api/elfsquad'
 import { useTagSetStore } from '../stores/tagSet'
 import { useSelectionStore } from '../stores/selection'
@@ -137,6 +139,8 @@ function onPropertySaved() {
   gap: 1rem;
   align-items: center;
   padding: 0.25rem 0;
+  /* Ensure vertical alignment with tree arrow */
+  min-height: 32px;
 }
 .feature-id, .feature-article, .feature-ref, .feature-name, .feature-price {
   min-width: 80px;
@@ -145,7 +149,41 @@ function onPropertySaved() {
 .feature-properties {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
+  align-items: flex-start;
+  min-width: 200px;
+  max-width: 400px;
+  flex-wrap: wrap;
+  word-break: break-word;
+}
+.feature-property-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #23232b;
+  border: 1px solid #282832;
+  border-radius: 3px;
+  padding: 0.08rem 0.38rem 0.14rem 0.38rem;
+  min-width: 60px;
+  margin-bottom: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: border 0.2s;
+}
+.feature-property-card:hover {
+  border: 1.2px solid #353545;
+}
+.feature-property-name {
+  font-size: 0.68em;
+  color: #aaa;
+  margin-bottom: 0.02em;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.feature-property-value {
+  font-size: 0.98em;
+  color: #e0e0e0;
+  font-weight: 400;
+  word-break: break-all;
 }
 .feature-property-label {
   font-weight: 500;

@@ -4,8 +4,7 @@
       <span :style="{color: isAuthenticated ? 'green' : 'red'}">
         {{ isAuthenticated ? 'Connected' : 'Not connected' }}
       </span>
-      <template v-if="isAuthenticated && tokenExpires">
-        &nbsp;| Token expires in: {{ expiresIn }}
+      <template v-if="isAuthenticated">
         <n-button size="small" @click="logout" style="margin-left: 1rem;">Logout</n-button>
       </template>
     </n-text>
